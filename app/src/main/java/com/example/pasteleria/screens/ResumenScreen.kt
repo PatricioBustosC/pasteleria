@@ -4,12 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.*
 import com.example.pasteleria.viewmodel.ProductoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,11 +19,12 @@ fun ResumenScreen(navController: NavController, productoViewModel: ProductoViewM
     val carrito = productoViewModel.carrito
     val total = carrito.sumOf { it.precio * (it.cantidad ?: 1) }
 
+    val composition by rememberLottieComposition(LottieCompositionSpec.Url("https://lottie.host/5eafbc91-9d71-4e29-8f3b-91bcb54081b0/vQh0mZFS8E.json\n"))
+    val progress by animateLottieCompositionAsState(composition)
+
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Resumen del Pedido") }
-            )
+            CenterAlignedTopAppBar(title = { Text("Resumen del Pedido") })
         },
         bottomBar = {
             Button(
@@ -37,36 +39,36 @@ fun ResumenScreen(navController: NavController, productoViewModel: ProductoViewM
                     .padding(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Finalizar y volver al catálogo")
+                Text("Finalizar compra")
             }
         }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Gracias por tu compra",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier.size(200.dp)
             )
+
+            Text("Gracias por tu compra ", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Detalles del pedido:", fontWeight = FontWeight.Medium)
+            Text("Resumen del pedido:", fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn {
+            LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                 items(carrito) { producto ->
-                    Text("${producto.nombre} x${producto.cantidad} - $${producto.precio * (producto.cantidad ?: 1)}")
+                    Text("${producto.nombre} x${producto.cantidad ?: 1} - $${producto.precio * (producto.cantidad ?: 1)}")
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Total pagado: $${total.toInt()}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Total pagado: $${total.toInt()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
+
     }
 }

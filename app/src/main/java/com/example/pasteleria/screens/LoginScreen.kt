@@ -14,7 +14,6 @@ import com.example.pasteleria.components.CustomTextoCampo
 fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -23,25 +22,33 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
     ) {
         Text("Iniciar Sesión", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
+
         CustomTextoCampo(value = email, onValueChange = { email = it }, label = "Correo")
+        usuarioViewModel.emailError.value?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
+
         CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
+        usuarioViewModel.passwordError.value?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
-            if (usuarioViewModel.login(email, password)) {
+            if (usuarioViewModel.validarLogin(email, password)) {
                 navController.navigate("catalogo")
-            } else {
-                error = "Credenciales incorrectas"
             }
         }) {
             Text("Entrar")
         }
+
         Spacer(modifier = Modifier.height(8.dp))
+
         TextButton(onClick = { navController.navigate("registro") }) {
             Text("Registrarse")
-        }
-        if (error.isNotEmpty()) {
-            Text(error, color = MaterialTheme.colorScheme.error)
         }
     }
 }
