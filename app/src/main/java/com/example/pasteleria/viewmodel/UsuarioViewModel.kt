@@ -76,8 +76,15 @@ class UsuarioViewModel : ViewModel() {
         if (!valido) return false
 
         val usuario = Usuario(id = (0..1000).random(), nombre = nombre, email = email, password = password)
-        repositorio.registrarUsuario(usuario)
+        val registrado = repositorio.registrarUsuario(usuario)
+
+        if (!registrado) {
+            emailError.value = "El correo ya está registrado"
+            return false
+        }
+
         usuarioActual.value = usuario
         return true
     }
+
 }

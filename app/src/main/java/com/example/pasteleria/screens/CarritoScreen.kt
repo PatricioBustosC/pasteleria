@@ -16,23 +16,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pasteleria.viewmodel.ProductoViewModel
+import com.example.pasteleria.viewmodel.UsuarioViewModel
+import com.example.pasteleria.components.TopBarUsuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewModel) {
+fun CarritoScreen(
+    navController: NavController,
+    productoViewModel: ProductoViewModel,
+    usuarioViewModel: UsuarioViewModel
+) {
     val carrito = productoViewModel.carrito
+    val colorBeige = Color(0xFFFFF4E6)
+    val colorRosado = Color(0xFFFFC1CC)
+    val colorChocolate = Color(0xFF8B4513)
+    val colorCeleste = Color(0xFF8BD6E3)
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Carrito de Compras") }
-            )
-        },
+        topBar = { TopBarUsuario(navController, usuarioViewModel) },
         bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFFFEFD5))
+                    .background(colorBeige)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -46,34 +52,34 @@ fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewM
                     ) {
                         Text(
                             text = "Total: $${total.toInt()}",
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = colorChocolate
                         )
 
                         Row {
                             Button(
                                 onClick = { productoViewModel.limpiarCarrito() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC1CC))
+                                colors = ButtonDefaults.buttonColors(containerColor = colorRosado)
                             ) {
-                                Text("Vaciar")
+                                Text("Vaciar", color = colorChocolate)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = { navController.navigate("resumen") },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BD6E3))
+                                colors = ButtonDefaults.buttonColors(containerColor = colorCeleste)
                             ) {
-                                Text("Pagar")
+                                Text("Pagar", color = colorChocolate)
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // Este botón siempre aparece, incluso con el carrito vacío
                 Button(
                     onClick = { navController.navigate("catalogo") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEAD1DC))
+                    colors = ButtonDefaults.buttonColors(containerColor = colorRosado)
                 ) {
-                    Text("Volver al catálogo")
+                    Text("Volver al catálogo", color = colorChocolate)
                 }
             }
         }
@@ -82,15 +88,17 @@ fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewM
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(colorBeige)
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Tu carrito está vacío 😢")
+                Text("Tu carrito está vacío 😢", color = colorChocolate)
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .padding(padding)
+                    .background(colorBeige)
                     .padding(8.dp)
             ) {
                 items(carrito) { producto ->
@@ -99,6 +107,7 @@ fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewM
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Row(
@@ -118,15 +127,22 @@ fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewM
                             Column(
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text(producto.nombre, fontWeight = FontWeight.Bold)
-                                Text("$${producto.precio}", color = Color.Gray)
+                                Text(
+                                    producto.nombre,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorChocolate
+                                )
+                                Text(
+                                    "$${producto.precio}",
+                                    color = Color.Gray
+                                )
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = {
                                         productoViewModel.disminuirCantidad(producto)
                                     }) { Text("➖") }
 
-                                    Text("${producto.cantidad ?: 1}")
+                                    Text("${producto.cantidad ?: 1}", color = colorChocolate)
 
                                     IconButton(onClick = {
                                         productoViewModel.aumentarCantidad(producto)
@@ -137,7 +153,7 @@ fun CarritoScreen(navController: NavController, productoViewModel: ProductoViewM
                             IconButton(onClick = {
                                 productoViewModel.eliminarDelCarrito(producto)
                             }) {
-                                Text("🥐")
+                                Text("🧁")
                             }
                         }
                     }

@@ -22,15 +22,16 @@ fun AppNavigation() {
             RegisterScreen(navController, usuarioViewModel)
         }
         composable("catalogo") {
-            CatalogoScreen(navController, productoViewModel)
+            CatalogoScreen(navController, productoViewModel, usuarioViewModel)
         }
         composable("carrito") {
-            CarritoScreen(navController, productoViewModel)
+            CarritoScreen(navController, productoViewModel, usuarioViewModel)
         }
         composable("resumen") {
             ResumenScreen(navController, productoViewModel)
         }
-
-
+        composable("perfil") {
+            PerfilScreen(navController, usuarioViewModel)
+        }
     }
 }

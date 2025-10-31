@@ -39,7 +39,10 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
         Button(onClick = {
             if (usuarioViewModel.validarLogin(email, password)) {
-                navController.navigate("catalogo")
+                navController.navigate("catalogo") {
+                    popUpTo("login") { inclusive = true }
+                }
+
             }
         }) {
             Text("Entrar")

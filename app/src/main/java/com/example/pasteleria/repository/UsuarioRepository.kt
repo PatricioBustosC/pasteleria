@@ -4,13 +4,21 @@ import com.example.pasteleria.model.Usuario
 
 class UsuarioRepository {
 
-    private val usuarios = mutableListOf<Usuario>()
+    private val listaUsuarios = mutableListOf<Usuario>()
 
-    fun registrarUsuario(usuario: Usuario) {
-        usuarios.add(usuario)
+    fun registrarUsuario(usuario: Usuario): Boolean {
+        if (listaUsuarios.any { it.email.equals(usuario.email, ignoreCase = true) }) {
+            return false
+        }
+        listaUsuarios.add(usuario)
+        return true
     }
 
-    fun login(email: String, password: String): Usuario? {
-        return usuarios.find { it.email == email && it.password == password }
+    fun loginUsuario(email: String, password: String): Usuario? {
+        return listaUsuarios.find { it.email.equals(email, ignoreCase = true) && it.password == password }
+    }
+
+    fun obtenerUsuarios(): List<Usuario> {
+        return listaUsuarios
     }
 }
