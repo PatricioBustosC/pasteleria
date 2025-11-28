@@ -1,6 +1,5 @@
 package com.example.pasteleria.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,9 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.pasteleria.viewmodel.ProductoViewModel
 import com.example.pasteleria.viewmodel.UsuarioViewModel
 import com.example.pasteleria.components.TopBarUsuario
@@ -29,21 +28,26 @@ fun CatalogoScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // 1. Cargar los productos al iniciar la pantalla
+    LaunchedEffect(Unit) {
+        productoViewModel.cargarProductos()
+    }
+
+    // 2. CORRECCIÓN IMPORTANTE: Usamos 'by ... collectAsState()'
+    // Esto convierte el flujo en una lista real que LazyColumn puede entender
+    val productos by productoViewModel.productos.collectAsState()
+
     val colorCrema = Color(0xFFFFF4E6)
     val colorChocolate = Color(0xFF8B4513)
     val colorRosado = Color(0xFFFFC1CC)
 
     Scaffold(
-        topBar = {
-            TopBarUsuario(navController, usuarioViewModel)
-        },
+        topBar = { TopBarUsuario(navController, usuarioViewModel) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("carrito") },
                 containerColor = colorRosado
-            ) {
-                Text("🛒")
-            }
+            ) { Text("🛒") }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -54,7 +58,8 @@ fun CatalogoScreen(
                 .padding(padding)
                 .padding(12.dp)
         ) {
-            items(productoViewModel.productos) { producto ->
+            // Ahora 'productos' es una lista real, así que 'items' funcionará bien
+            items(productos) { producto ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -69,8 +74,9 @@ fun CatalogoScreen(
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = painterResource(id = producto.imagen),
+                        // Imagen cargada desde la URL (backend)
+                        AsyncImage(
+                            model = producto.imagenUrl,
                             contentDescription = producto.nombre,
                             modifier = Modifier
                                 .size(100.dp)
@@ -88,7 +94,9 @@ fun CatalogoScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.DarkGray
                             )
+
                             Spacer(modifier = Modifier.height(4.dp))
+
                             Text(
                                 text = "$${producto.precio}",
                                 style = MaterialTheme.typography.titleSmall,

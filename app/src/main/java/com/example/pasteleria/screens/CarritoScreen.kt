@@ -1,6 +1,5 @@
 package com.example.pasteleria.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,13 +7,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState // IMPORTANTE
+import androidx.compose.runtime.getValue     // IMPORTANTE
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage // USAR COIL
 import com.example.pasteleria.viewmodel.ProductoViewModel
 import com.example.pasteleria.viewmodel.UsuarioViewModel
 import com.example.pasteleria.components.TopBarUsuario
@@ -26,7 +27,9 @@ fun CarritoScreen(
     productoViewModel: ProductoViewModel,
     usuarioViewModel: UsuarioViewModel
 ) {
-    val carrito = productoViewModel.carrito
+    // 1. CORRECCIÓN: Usamos collectAsState para observar los cambios en vivo
+    val carrito by productoViewModel.carrito.collectAsState()
+
     val colorBeige = Color(0xFFFFF4E6)
     val colorRosado = Color(0xFFFFC1CC)
     val colorChocolate = Color(0xFF8B4513)
@@ -43,7 +46,8 @@ fun CarritoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (carrito.isNotEmpty()) {
-                    val total = carrito.sumOf { it.precio * (it.cantidad ?: 1) }
+                    // Calculamos el total
+                    val total = carrito.sumOf { it.precio * it.cantidad }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -116,8 +120,9 @@ fun CarritoScreen(
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(
-                                painter = painterResource(id = producto.imagen),
+                            // 2. CORRECCIÓN: AsyncImage para la URL
+                            AsyncImage(
+                                model = producto.imagenUrl,
                                 contentDescription = producto.nombre,
                                 modifier = Modifier
                                     .size(80.dp)
@@ -142,7 +147,7 @@ fun CarritoScreen(
                                         productoViewModel.disminuirCantidad(producto)
                                     }) { Text("➖") }
 
-                                    Text("${producto.cantidad ?: 1}", color = colorChocolate)
+                                    Text("${producto.cantidad}", color = colorChocolate)
 
                                     IconButton(onClick = {
                                         productoViewModel.aumentarCantidad(producto)
@@ -153,7 +158,7 @@ fun CarritoScreen(
                             IconButton(onClick = {
                                 productoViewModel.eliminarDelCarrito(producto)
                             }) {
-                                Text("🧁")
+                                Text("🗑️") // Cambié el icono por un basurero
                             }
                         }
                     }

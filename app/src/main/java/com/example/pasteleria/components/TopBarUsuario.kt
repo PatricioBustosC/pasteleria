@@ -2,25 +2,28 @@ package com.example.pasteleria.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.pasteleria.viewmodel.UsuarioViewModel
-import com.example.pasteleria.R
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarUsuario(navController: NavController, usuarioViewModel: UsuarioViewModel) {
-    val usuario = usuarioViewModel.usuarioActual.value
+
+    val usuario by usuarioViewModel.usuarioLogueado.collectAsState()
+
     val colorChocolate = Color(0xFF8B4513)
     val colorBeige = Color(0xFFFFF4E6)
 
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "Bienvenido, ${usuario?.nombre ?: "Usuario"}",
+                text = "Bienvenido, ${usuario?.nombre ?: "Invitado"}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = colorChocolate
@@ -30,13 +33,11 @@ fun TopBarUsuario(navController: NavController, usuarioViewModel: UsuarioViewMod
             containerColor = colorBeige
         ),
         actions = {
-            IconButton(onClick = { navController.navigate("perfil") }) {
+            IconButton(onClick = { navController.navigate(route = "perfil") }) {
                 Icon(
-                    painter = painterResource(
-                        id = usuario?.imagen ?: R.drawable.ic_persona
-                    ),
+                    imageVector = Icons.Filled.Person,
                     contentDescription = "Perfil",
-                    tint = if (usuario?.imagen != null) Color.Unspecified else Color.Black
+                    tint = colorChocolate
                 )
             }
         }

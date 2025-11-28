@@ -1,56 +1,82 @@
 package com.example.pasteleria.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.pasteleria.model.Producto
-import com.example.pasteleria.R
+import com.example.pasteleria.network.RetrofitInstance
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ProductoViewModel : ViewModel() {
-    val productos = listOf(
-        Producto(1, "Torta de Chocolate", "Deliciosa torta con cobertura", 15000.0, R.drawable.torta_chocolate),
-        Producto(2, "Cheesecake Frutilla", "Con mermelada natural", 18000.0, R.drawable.cheesecake_frutilla),
-        Producto(3, "Cupcake Vainilla", "Decorado con crema suave", 2500.0, R.drawable.cupcake_vainilla)
-    )
 
-    private val _carrito = mutableStateListOf<Producto>()
-    val carrito: List<Producto> get() = _carrito
+    // Lista de productos del catálogo (viene de Internet)
+    private val _productos = MutableStateFlow<List<Producto>>(emptyList())
+    val productos: StateFlow<List<Producto>> get() = _productos
 
-    fun agregarAlCarrito(producto: Producto) {
-        val existente = _carrito.find { it.id == producto.id }
-        if (existente != null) {
-            existente.cantidad = (existente.cantidad ?: 1) + 1
-        } else {
-            _carrito.add(producto.copy(cantidad = 1))
-        }
+    // Lista del carrito de compras (Local)
+    private val _carrito = MutableStateFlow<List<Producto>>(emptyList())
+    val carrito: StateFlow<List<Producto>> get() = _carrito
+
+    init {
+        cargarProductos()
     }
 
-    fun eliminarDelCarrito(producto: Producto) {
-        _carrito.remove(producto)
-    }
-
-    fun limpiarCarrito() {
-        _carrito.clear()
-    }
-
-    fun aumentarCantidad(producto: Producto) {
-        val index = _carrito.indexOfFirst { it.id == producto.id }
-        if (index != -1) {
-            val actualizado = _carrito[index].copy(cantidad = (_carrito[index].cantidad ?: 1) + 1)
-            _carrito[index] = actualizado
-        }
-    }
-
-    fun disminuirCantidad(producto: Producto) {
-        val index = _carrito.indexOfFirst { it.id == producto.id }
-        if (index != -1) {
-            val actual = _carrito[index].cantidad ?: 1
-            if (actual > 1) {
-                val actualizado = _carrito[index].copy(cantidad = actual - 1)
-                _carrito[index] = actualizado
-            } else {
-                _carrito.removeAt(index)
+    fun cargarProductos() {
+        viewModelScope.launch {
+            try {
+                // Llamada a la API
+                _productos.value = RetrofitInstance.api.obtenerProductos()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
 
+    // --- LÓGICA DEL CARRITO ---
+
+    fun agregarAlCarrito(producto: Producto) {
+        val listaActual = _carrito.value.toMutableList()
+        val existente = listaActual.find { it.id == producto.id }
+
+        if (existente != null) {
+            existente.cantidad += 1
+        } else {
+            // Copiamos el producto para no alterar el del catálogo original
+            listaActual.add(producto.copy(cantidad = 1))
+        }
+        _carrito.value = listaActual
+    }
+
+    fun aumentarCantidad(producto: Producto) {
+        val listaActual = _carrito.value.toMutableList()
+        val item = listaActual.find { it.id == producto.id }
+        item?.let {
+            it.cantidad += 1
+            _carrito.value = listaActual // Actualizamos estado
+        }
+    }
+
+    fun disminuirCantidad(producto: Producto) {
+        val listaActual = _carrito.value.toMutableList()
+        val item = listaActual.find { it.id == producto.id }
+        item?.let {
+            if (it.cantidad > 1) {
+                it.cantidad -= 1
+            } else {
+                listaActual.remove(it)
+            }
+            _carrito.value = listaActual
+        }
+    }
+
+    fun eliminarDelCarrito(producto: Producto) {
+        val listaActual = _carrito.value.toMutableList()
+        listaActual.removeIf { it.id == producto.id }
+        _carrito.value = listaActual
+    }
+
+    fun limpiarCarrito() {
+        _carrito.value = emptyList()
+    }
 }

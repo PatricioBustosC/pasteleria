@@ -1,6 +1,9 @@
 package com.example.pasteleria.navigation
 
+import android.app.Application
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -11,26 +14,35 @@ import com.example.pasteleria.viewmodel.UsuarioViewModel
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val usuarioViewModel = UsuarioViewModel()
-    val productoViewModel = ProductoViewModel()
+
+    val context = LocalContext.current.applicationContext as Application
+
+    val usuarioViewModel = remember { UsuarioViewModel(context) }
+    val productoViewModel = remember { ProductoViewModel() }
 
     NavHost(navController = navController, startDestination = "login") {
-        composable("login") {
+
+        composable(route = "login") {
             LoginScreen(navController, usuarioViewModel)
         }
-        composable("registro") {
+
+        composable(route = "registro") {
             RegisterScreen(navController, usuarioViewModel)
         }
-        composable("catalogo") {
+
+        composable(route = "catalogo") {
             CatalogoScreen(navController, productoViewModel, usuarioViewModel)
         }
-        composable("carrito") {
+
+        composable(route = "carrito") {
             CarritoScreen(navController, productoViewModel, usuarioViewModel)
         }
-        composable("resumen") {
+
+        composable(route = "resumen") {
             ResumenScreen(navController, productoViewModel)
         }
-        composable("perfil") {
+
+        composable(route = "perfil") {
             PerfilScreen(navController, usuarioViewModel)
         }
     }

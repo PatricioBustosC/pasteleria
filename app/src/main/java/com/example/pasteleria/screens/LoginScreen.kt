@@ -15,34 +15,54 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Variable local para mostrar errores en la pantalla
+    var errorMensaje by remember { mutableStateOf<String?>(null) }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Iniciar Sesión", style = MaterialTheme.typography.headlineMedium)
+
         Spacer(modifier = Modifier.height(16.dp))
 
         CustomTextoCampo(value = email, onValueChange = { email = it }, label = "Correo")
-        usuarioViewModel.emailError.value?.let {
-            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
-        usuarioViewModel.passwordError.value?.let {
-            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
+        // AQUÍ MOSTRAMOS EL ERROR (SI EXISTE)
+        if (errorMensaje != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = errorMensaje!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            if (usuarioViewModel.validarLogin(email, password)) {
-                navController.navigate("catalogo") {
-                    popUpTo("login") { inclusive = true }
-                }
+            // 1. VALIDACIÓN: Revisamos si los campos están vacíos
+            if (email.isBlank() || password.isBlank()) {
+                errorMensaje = "Por favor llene todos los campos"
+            } else {
+                // 2. LÓGICA: Llamamos al login del ViewModel
+                val loginExitoso = usuarioViewModel.login(email, password)
 
+                if (loginExitoso) {
+                    // Si el login funciona, navegamos
+                    errorMensaje = null
+                    navController.navigate("catalogo") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                } else {
+                    // Si el login falla, mostramos error
+                    errorMensaje = "Correo o contraseña incorrectos"
+                }
             }
         }) {
             Text("Entrar")
