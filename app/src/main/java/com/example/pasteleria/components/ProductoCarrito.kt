@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import coil.compose.AsyncImage // <--- ESTA ES LA CLAVE PARA CARGAR URLS
+import coil.compose.AsyncImage
 import com.example.pasteleria.model.Producto
 
 @Composable

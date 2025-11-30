@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pasteleria.viewmodel.UsuarioViewModel
-// Importamos iconos por defecto para evitar errores de imágenes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 
@@ -17,10 +16,8 @@ import androidx.compose.material.icons.filled.Person
 @Composable
 fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewModel) {
 
-    // 1. CORRECCIÓN: Usamos 'collectAsState' y 'usuarioLogueado'
     val usuario by usuarioViewModel.usuarioLogueado.collectAsState()
 
-    // Inicializamos los campos con los datos del usuario (o vacío si no hay nadie)
     var nombre by remember { mutableStateOf(usuario?.nombre ?: "") }
     var email by remember { mutableStateOf(usuario?.email ?: "") }
     var password by remember { mutableStateOf(usuario?.password ?: "") }
@@ -44,7 +41,6 @@ fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewMode
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 2. CORRECCIÓN: Usamos un Icono por defecto para que no falle la imagen
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Imagen de perfil",
@@ -54,12 +50,11 @@ fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewMode
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campos de texto (Solo lectura por ahora para evitar errores de lógica compleja)
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
                 label = { Text("Nombre") },
-                readOnly = true // Lo dejamos solo lectura para simplificar
+                readOnly = true
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
@@ -73,12 +68,11 @@ fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewMode
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Contraseña") },
-                readOnly = true // Por seguridad visual
+                readOnly = true
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón para Cerrar Sesión (Más útil que editar en este punto)
             Button(
                 onClick = {
                     usuarioViewModel.logout()

@@ -4,8 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState // <--- IMPORTANTE
-import androidx.compose.runtime.getValue     // <--- IMPORTANTE
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,11 +19,8 @@ import kotlin.random.Random
 @Composable
 fun ResumenScreen(navController: NavController, productoViewModel: ProductoViewModel) {
 
-    // 1. CORRECCIÓN: Usamos 'by ... collectAsState()'
-    // Esto convierte el flujo en una lista real que podemos sumar y recorrer
     val carrito by productoViewModel.carrito.collectAsState()
 
-    // Ahora 'carrito' es una lista, así que 'sumOf' funcionará perfecto
     val total = carrito.sumOf { it.precio * it.cantidad }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -38,12 +35,11 @@ fun ResumenScreen(navController: NavController, productoViewModel: ProductoViewM
             Text(
                 text = "¡Compra realizada con éxito! 🎉",
                 style = MaterialTheme.typography.headlineSmall,
-                color = Color(0xFF8B4513) // chocolate suave
+                color = Color(0xFF8B4513)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Lista simple de productos comprados
             carrito.forEach { producto ->
                 Text(
                     text = "${producto.nombre} x${producto.cantidad} = $${producto.precio * producto.cantidad}",
@@ -71,7 +67,6 @@ fun ResumenScreen(navController: NavController, productoViewModel: ProductoViewM
                 onClick = {
                     productoViewModel.limpiarCarrito()
                     navController.navigate("catalogo") {
-                        // Borramos el historial para que no pueda volver atrás a la compra
                         popUpTo("catalogo") { inclusive = true }
                     }
                 },

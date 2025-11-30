@@ -10,11 +10,9 @@ import kotlinx.coroutines.launch
 
 class ProductoViewModel : ViewModel() {
 
-    // Lista de productos del catálogo (viene de Internet)
     private val _productos = MutableStateFlow<List<Producto>>(emptyList())
     val productos: StateFlow<List<Producto>> get() = _productos
 
-    // Lista del carrito de compras (Local)
     private val _carrito = MutableStateFlow<List<Producto>>(emptyList())
     val carrito: StateFlow<List<Producto>> get() = _carrito
 
@@ -25,15 +23,12 @@ class ProductoViewModel : ViewModel() {
     fun cargarProductos() {
         viewModelScope.launch {
             try {
-                // Llamada a la API
                 _productos.value = RetrofitInstance.api.obtenerProductos()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
-
-    // --- LÓGICA DEL CARRITO ---
 
     fun agregarAlCarrito(producto: Producto) {
         val listaActual = _carrito.value.toMutableList()
@@ -42,7 +37,6 @@ class ProductoViewModel : ViewModel() {
         if (existente != null) {
             existente.cantidad += 1
         } else {
-            // Copiamos el producto para no alterar el del catálogo original
             listaActual.add(producto.copy(cantidad = 1))
         }
         _carrito.value = listaActual
@@ -53,7 +47,7 @@ class ProductoViewModel : ViewModel() {
         val item = listaActual.find { it.id == producto.id }
         item?.let {
             it.cantidad += 1
-            _carrito.value = listaActual // Actualizamos estado
+            _carrito.value = listaActual
         }
     }
 

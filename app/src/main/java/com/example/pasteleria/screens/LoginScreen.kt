@@ -15,7 +15,6 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Variable local para mostrar errores en la pantalla
     var errorMensaje by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -33,7 +32,6 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
         CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
 
-        // AQUÍ MOSTRAMOS EL ERROR (SI EXISTE)
         if (errorMensaje != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -46,21 +44,17 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            // 1. VALIDACIÓN: Revisamos si los campos están vacíos
             if (email.isBlank() || password.isBlank()) {
                 errorMensaje = "Por favor llene todos los campos"
             } else {
-                // 2. LÓGICA: Llamamos al login del ViewModel
                 val loginExitoso = usuarioViewModel.login(email, password)
 
                 if (loginExitoso) {
-                    // Si el login funciona, navegamos
                     errorMensaje = null
                     navController.navigate("catalogo") {
                         popUpTo("login") { inclusive = true }
                     }
                 } else {
-                    // Si el login falla, mostramos error
                     errorMensaje = "Correo o contraseña incorrectos"
                 }
             }

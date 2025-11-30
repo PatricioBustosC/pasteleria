@@ -7,15 +7,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState // IMPORTANTE
-import androidx.compose.runtime.getValue     // IMPORTANTE
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage // USAR COIL
+import coil.compose.AsyncImage
 import com.example.pasteleria.viewmodel.ProductoViewModel
 import com.example.pasteleria.viewmodel.UsuarioViewModel
 import com.example.pasteleria.components.TopBarUsuario
@@ -27,7 +27,6 @@ fun CarritoScreen(
     productoViewModel: ProductoViewModel,
     usuarioViewModel: UsuarioViewModel
 ) {
-    // 1. CORRECCIÓN: Usamos collectAsState para observar los cambios en vivo
     val carrito by productoViewModel.carrito.collectAsState()
 
     val colorBeige = Color(0xFFFFF4E6)
@@ -46,7 +45,6 @@ fun CarritoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (carrito.isNotEmpty()) {
-                    // Calculamos el total
                     val total = carrito.sumOf { it.precio * it.cantidad }
 
                     Row(
@@ -120,7 +118,6 @@ fun CarritoScreen(
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // 2. CORRECCIÓN: AsyncImage para la URL
                             AsyncImage(
                                 model = producto.imagenUrl,
                                 contentDescription = producto.nombre,
@@ -158,7 +155,7 @@ fun CarritoScreen(
                             IconButton(onClick = {
                                 productoViewModel.eliminarDelCarrito(producto)
                             }) {
-                                Text("🗑️") // Cambié el icono por un basurero
+                                Text("🗑️")
                             }
                         }
                     }

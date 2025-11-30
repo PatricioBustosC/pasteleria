@@ -28,13 +28,10 @@ fun CatalogoScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // 1. Cargar los productos al iniciar la pantalla
     LaunchedEffect(Unit) {
         productoViewModel.cargarProductos()
     }
 
-    // 2. CORRECCIÓN IMPORTANTE: Usamos 'by ... collectAsState()'
-    // Esto convierte el flujo en una lista real que LazyColumn puede entender
     val productos by productoViewModel.productos.collectAsState()
 
     val colorCrema = Color(0xFFFFF4E6)
@@ -58,7 +55,6 @@ fun CatalogoScreen(
                 .padding(padding)
                 .padding(12.dp)
         ) {
-            // Ahora 'productos' es una lista real, así que 'items' funcionará bien
             items(productos) { producto ->
                 Card(
                     modifier = Modifier
@@ -74,7 +70,6 @@ fun CatalogoScreen(
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Imagen cargada desde la URL (backend)
                         AsyncImage(
                             model = producto.imagenUrl,
                             contentDescription = producto.nombre,

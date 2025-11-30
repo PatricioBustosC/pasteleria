@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pasteleria.viewmodel.UsuarioViewModel
 import com.example.pasteleria.components.CustomTextoCampo
-import com.example.pasteleria.model.Usuario // <--- IMPORTANTE: Importar el modelo
+import com.example.pasteleria.model.Usuario
 
 @Composable
 fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewModel) {
@@ -17,7 +17,6 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Variable para manejar errores locales
     var errorMensaje by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -37,7 +36,6 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
 
         CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
 
-        // Mostrar error si existe
         if (errorMensaje != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -50,30 +48,24 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            // 1. VALIDACIÓN: Campos vacíos
             if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
                 errorMensaje = "Por favor complete todos los campos"
             } else {
-                // 2. CREAMOS EL OBJETO USUARIO
-                // Generamos un ID al azar para simplificar
                 val nuevoUsuario = Usuario(
                     id = (1..10000).random(),
                     nombre = nombre,
                     email = email,
                     password = password,
-                    imagen = null // O null si tu modelo lo permite
+                    imagen = null
                 )
 
-                // 3. INTENTAMOS REGISTRAR
                 val registroExitoso = usuarioViewModel.registrar(nuevoUsuario)
 
                 if (registroExitoso) {
-                    // Si funcionó, vamos al Login
                     navController.navigate("login") {
                         popUpTo("registro") { inclusive = true }
                     }
                 } else {
-                    // Si falló (ej: correo repetido)
                     errorMensaje = "El correo ya está registrado"
                 }
             }
