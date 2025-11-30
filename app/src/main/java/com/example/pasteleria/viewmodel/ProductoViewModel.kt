@@ -23,6 +23,7 @@ class ProductoViewModel : ViewModel() {
     fun cargarProductos() {
         viewModelScope.launch {
             try {
+                // Aquí obtenemos la lista "limpia" del servidor
                 _productos.value = RetrofitInstance.api.obtenerProductos()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -32,11 +33,16 @@ class ProductoViewModel : ViewModel() {
 
     fun agregarAlCarrito(producto: Producto) {
         val listaActual = _carrito.value.toMutableList()
-        val existente = listaActual.find { it.id == producto.id }
+        // Buscamos si ya está en el carrito
+        val index = listaActual.indexOfFirst { it.id == producto.id }
 
-        if (existente != null) {
-            existente.cantidad += 1
+        if (index != -1) {
+            // Si existe, hacemos una COPIA con cantidad + 1
+            val itemExistente = listaActual[index]
+            val itemActualizado = itemExistente.copy(cantidad = itemExistente.cantidad + 1)
+            listaActual[index] = itemActualizado
         } else {
+            // Si no existe, lo agregamos con cantidad 1
             listaActual.add(producto.copy(cantidad = 1))
         }
         _carrito.value = listaActual
@@ -44,21 +50,34 @@ class ProductoViewModel : ViewModel() {
 
     fun aumentarCantidad(producto: Producto) {
         val listaActual = _carrito.value.toMutableList()
-        val item = listaActual.find { it.id == producto.id }
-        item?.let {
-            it.cantidad += 1
+        val index = listaActual.indexOfFirst { it.id == producto.id }
+
+        if (index != -1) {
+            val item = listaActual[index]
+            // ¡ESTO ES LO IMPORTANTE! Usamos .copy()
+            val itemActualizado = item.copy(cantidad = item.cantidad + 1)
+
+            // Reemplazamos el viejo por el nuevo en la lista
+            listaActual[index] = itemActualizado
+
+            // Avisamos al estado que la lista cambió
             _carrito.value = listaActual
         }
     }
 
     fun disminuirCantidad(producto: Producto) {
         val listaActual = _carrito.value.toMutableList()
-        val item = listaActual.find { it.id == producto.id }
-        item?.let {
-            if (it.cantidad > 1) {
-                it.cantidad -= 1
+        val index = listaActual.indexOfFirst { it.id == producto.id }
+
+        if (index != -1) {
+            val item = listaActual[index]
+            if (item.cantidad > 1) {
+                // Si es mayor a 1, restamos usando copia
+                val itemActualizado = item.copy(cantidad = item.cantidad - 1)
+                listaActual[index] = itemActualizado
             } else {
-                listaActual.remove(it)
+                // Si es 1 y restamos, lo borramos
+                listaActual.removeAt(index)
             }
             _carrito.value = listaActual
         }

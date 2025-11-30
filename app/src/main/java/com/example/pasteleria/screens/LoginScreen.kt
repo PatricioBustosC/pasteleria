@@ -30,7 +30,7 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
+        CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña", isPassword = true)
 
         if (errorMensaje != null) {
             Spacer(modifier = Modifier.height(8.dp))

@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.pasteleria.model.Usuario
+import com.example.pasteleria.SeguridadUtils // Importamos la herramienta de seguridad
 
 class UsuarioRepository(private val context: Context) {
 
@@ -19,13 +20,22 @@ class UsuarioRepository(private val context: Context) {
         if (listaUsuarios.any { it.email.equals(usuario.email, ignoreCase = true) }) {
             return false
         }
-        listaUsuarios.add(usuario)
+
+        val usuarioSeguro = usuario.copy(
+            password = SeguridadUtils.encriptar(usuario.password)
+        )
+
+        listaUsuarios.add(usuarioSeguro)
         guardarDatos()
         return true
     }
 
     fun loginUsuario(email: String, password: String): Usuario? {
-        return listaUsuarios.find { it.email.equals(email, ignoreCase = true) && it.password == password }
+        val passwordEncriptada = SeguridadUtils.encriptar(password)
+
+        return listaUsuarios.find {
+            it.email.equals(email, ignoreCase = true) && it.password == passwordEncriptada
+        }
     }
 
     fun obtenerUsuarios(): List<Usuario> {
@@ -44,6 +54,15 @@ class UsuarioRepository(private val context: Context) {
             listaUsuarios = gson.fromJson(json, type)
         } else {
             listaUsuarios = mutableListOf()
+        }
+    }
+
+    fun actualizarImagenUsuario(email: String, nuevaImagenUri: String) {
+        val indice = listaUsuarios.indexOfFirst { it.email == email }
+        if (indice != -1) {
+            val usuarioActualizado = listaUsuarios[indice].copy(imagen = nuevaImagenUri)
+            listaUsuarios[indice] = usuarioActualizado
+            guardarDatos()
         }
     }
 }

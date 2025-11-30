@@ -29,4 +29,11 @@ class UsuarioViewModel(application: Application) : AndroidViewModel(application)
     fun logout() {
         _usuarioLogueado.value = null
     }
+    fun cambiarFotoPerfil(uri: String) {
+        val usuario = _usuarioLogueado.value
+        if (usuario != null) {
+            usuarioRepository.actualizarImagenUsuario(usuario.email, uri)
+            _usuarioLogueado.value = usuario.copy(imagen = uri)
+        }
+    }
 }

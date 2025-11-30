@@ -34,7 +34,7 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
         CustomTextoCampo(value = email, onValueChange = { email = it }, label = "Correo electrónico")
         Spacer(modifier = Modifier.height(8.dp))
 
-        CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña")
+        CustomTextoCampo(value = password, onValueChange = { password = it }, label = "Contraseña", isPassword = true)
 
         if (errorMensaje != null) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -49,10 +49,10 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
 
         Button(onClick = {
             if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
-                errorMensaje = "Por favor complete todos los campos"
+                errorMensaje = "Por favor llene todos los campos"
             } else {
                 val nuevoUsuario = Usuario(
-                    id = (1..10000).random(),
+                    id = (1..99999).random(),
                     nombre = nombre,
                     email = email,
                     password = password,
@@ -62,11 +62,12 @@ fun RegisterScreen(navController: NavController, usuarioViewModel: UsuarioViewMo
                 val registroExitoso = usuarioViewModel.registrar(nuevoUsuario)
 
                 if (registroExitoso) {
+                    errorMensaje = null
                     navController.navigate("login") {
                         popUpTo("registro") { inclusive = true }
                     }
                 } else {
-                    errorMensaje = "El correo ya está registrado"
+                    errorMensaje = "El correo electrónico ya está en uso"
                 }
             }
         }) {

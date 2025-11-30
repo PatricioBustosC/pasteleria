@@ -1,26 +1,38 @@
 package com.example.pasteleria.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.pasteleria.viewmodel.UsuarioViewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewModel) {
 
     val usuario by usuarioViewModel.usuarioLogueado.collectAsState()
-
-    var nombre by remember { mutableStateOf(usuario?.nombre ?: "") }
-    var email by remember { mutableStateOf(usuario?.email ?: "") }
-    var password by remember { mutableStateOf(usuario?.password ?: "") }
+    val lanzadorGaleria = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let {
+            usuarioViewModel.cambiarFotoPerfil(it.toString())
+        }
+    }
 
     val colorChocolate = Color(0xFF8B4513)
     val colorRosado = Color(0xFFFFC1CC)
@@ -41,37 +53,56 @@ fun PerfilScreen(navController: NavController, usuarioViewModel: UsuarioViewMode
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Imagen de perfil",
-                modifier = Modifier.size(100.dp),
-                tint = colorChocolate
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        lanzadorGaleria.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+            ) {
+                if (usuario?.imagen != null && usuario?.imagen!!.isNotEmpty()) {
+                    AsyncImage(
+                        model = usuario?.imagen,
+                        contentDescription = "Foto de perfil",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Sin foto",
+                        modifier = Modifier.size(80.dp),
+                        tint = colorChocolate
+                    )
+                }
+            }
 
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre") },
-                readOnly = true
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Correo") },
-                readOnly = true
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                readOnly = true
-            )
+            Text("(Toca el círculo para cambiar foto)", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            OutlinedTextField(
+                value = usuario?.nombre ?: "",
+                onValueChange = { },
+                label = { Text("Nombre") },
+                readOnly = true,
+                enabled = false
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = usuario?.email ?: "",
+                onValueChange = { },
+                label = { Text("Correo") },
+                readOnly = true,
+                enabled = false
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {

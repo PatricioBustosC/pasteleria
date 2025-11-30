@@ -5,5 +5,5 @@ data class Usuario(
     val nombre: String,
     val email: String,
     val password: String,
-    var imagen: Int? = null
+    val imagen: String? = null
 )
